@@ -27,10 +27,17 @@ app.get("/",(req,res)=>{
     //     res.send(`You Search, ${keyword}!`);
     // }); 
 
-// using Controllers (Modular Route Handling)
-    import { usernameController,searchController } from './controller.js';
-    app.get('/user/:username', usernameController); 
-    app.get('/search', searchController);
+// using Controllers (Module Route Handling)
+    import { userLogin,userSignup } from './controller.js';
+    // app.get('/user/login', userLogin); 
+    // app.get('/user/signup', userSignup);
+
+// Using Express Router (Modular Route Handling)
+    import router from './route.js';
+    app.use('/user', router);
+
+
+
 
 
 // Start the server
