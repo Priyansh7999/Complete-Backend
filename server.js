@@ -10,33 +10,71 @@ app.get("/",(req,res)=>{
 
 
 // Define additional routes
-    app.get('/about', (req, res) => {
-        res.send('This is the about page.');
-    });
+    // app.get('/about', (req, res) => {
+    //     res.send('This is the about page.');
+    // });
 
 
 // Dynamic route with URL parameter
-    app.get('/user/:username', (req, res) => {
-        const username=req.params.username;
-        res.send(`Welcome, ${username}!`);
-    });
+    // app.get('/user/:username', (req, res) => {
+    //     const username=req.params.username;
+    //     res.send(`Welcome, ${username}!`);
+    // });
+
+    // how to handle multiple route parameters
+        // app.get('/things/:name/:id',(req,res)=>{
+        //     const {name,id}=req.params;
+        //     res.send(`This is ${name} with id ${id}`);
+        // })
+
 
 // Route with query parameter
-    app.get('/search', (req, res) => {
-        const keyword=req.query.keyword;
-        res.send(`You Search, ${keyword}!`);
-    }); 
+    // app.get('/search', (req, res) => {
+    //     const keyword=req.query.keyword;
+    //     res.send(`You Search, ${keyword}!`);
+    // }); 
 
 // using Controllers (Module Route Handling)
-    import { userLogin,userSignup } from './controller.js';
-    app.get('/user/login', userLogin); 
-    app.get('/user/signup', userSignup);
+    // import { userLogin,userSignup } from './controller.js';
+    // app.get('/user/login', userLogin); 
+    // app.get('/user/signup', userSignup);
 
 // Using Express Router (Modular Route Handling)
-    import router from './route.js';
-    app.use('/user', router);
+    // import router from './route.js';
+    // app.use('/user', router);
 
 
+// POST Request Handling
+    // app.use(express.json());// Middleware to parse JSON bodies
+    // app.post('/users',(req,res)=>{
+    //     const {name,email}=req.body;
+    //     res.json({
+    //         message:`User ${name} with email ${email} created successfully!`
+    //     })
+    // })
+
+// PUT Request Handling
+    // app.use(express.json());// Middleware to parse JSON bodies
+    // app.put('/users/:id',(req,res)=>{
+    //     const id=req.params.id;
+    //     const {name,email}=req.body;
+    //     res.json({
+    //         message:`User with id ${id} updated to name: ${name}, email: ${email}`
+    //     })
+    // })
+
+// DELETE Request Handling
+    // app.delete('/users/:id',(req,res)=>{
+    //     const id=req.params.id;
+    //     res.json({
+    //         message:`User with id ${id} deleted successfully!`
+    //     })
+    // }) 
+
+// catch-all invalid route (404 Handling) always at bottom
+app.use((req, res) => {
+    res.status(404).send('Sorry, the route you are looking for does not exist.');
+});
 
 
 
