@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/Priyansh7999/Complete_Backend/issues"
   },
-  "homepage": "https://github.com/Priyansh7999/Complete_Backend#readme"
+  "homepage": "https://github.com/Priyansh7999/Complete_Backend#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
