@@ -1,7 +1,6 @@
 # 📚 Backend Development with Node.js & Express.js
 
 This repository contains everything I learnedfor Backend Development using Node.js and Express.js.
---------------------------------------------------------------------------------------------------
 
 ## Table of Contents
 
