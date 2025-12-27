@@ -3,11 +3,37 @@ import express from 'express';
 const app = express()
 const port = 3000;
 
-// Define a simple route
-app.get("/",(req,res)=>{
-    res.send("Hello, World!");
+// Middleware
+
+app.use((req,res,next)=>{
+    console.log(`Start`);
+    res.on('finish',()=>{
+        console.log(`End`);
+    }); 
+    next();
 })
 
+// app.use('/welcome',(req,res,next)=>{
+//     console.log(`${req.method} request received for ${req.url} at ${new Date().toISOString()}`);
+//     next();
+// })
+
+// Define a simple route
+app.get("/",(req,res)=>{
+    console.log(`Middle`);
+    res.send("Hello, World!");
+})
+app.get("/error",(req,res)=>{
+    throw new Error("Something went wrong!");
+})
+app.use((err,req,res,next)=>{
+    console.error(err.stack);
+    res.send('Internal Server Error!');
+});
+
+// app.get("/welcome",(req,res)=>{
+//     res.send("welcome to express js");
+// })
 
 // Define additional routes
     // app.get('/about', (req, res) => {
@@ -71,12 +97,20 @@ app.get("/",(req,res)=>{
     //     })
     // }) 
 
+
+
+
+
+
+
+
+
+
+
 // catch-all invalid route (404 Handling) always at bottom
-app.use((req, res) => {
-    res.status(404).send('Sorry, the route you are looking for does not exist.');
-});
-
-
+    app.use((req, res) => {
+        res.status(404).send('Sorry, the route you are looking for does not exist.');
+    });
 
 // Start the server
 app.listen(port, () => {
