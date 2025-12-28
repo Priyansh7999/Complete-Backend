@@ -1,6 +1,6 @@
-# 📚 Backend Development with Node.js & Express.js
+# *Backend Development with Node.js & Express.js*
 
-This repository contains everything I learnedfor Backend Development using Node.js and Express.js.
+# Day 1: Introduction to Express.js, Routing, HTTP Methods, Middleware, Error Handling
 
 ## Table of Contents
 
@@ -362,3 +362,742 @@ app.listen(port, () => {
 ```
 
 ---
+
+
+# Day 2: Serving Static Files, Form Handling & MongoDB Integration
+
+---
+
+## Table of Contents
+
+1. [Serving Static Files](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#serving-static-files)
+2. [Form Handling](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#form-handling)
+3. [MongoDB Setup &amp; Connection](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#mongodb-setup--connection)
+4. [Mongoose Schemas &amp; Models](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#mongoose-schemas--models)
+5. [CRUD Operations](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#crud-operations)
+6. [Complete Project Structure](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#complete-project-structure)
+
+---
+
+## Serving Static Files
+
+Static files include HTML, CSS, JavaScript, images, and other assets that don't change dynamically.
+
+### Method 1: Without Folder Prefix
+
+```javascript
+app.use(express.static('public'));
+```
+
+**Access files:**
+
+* `http://localhost:3000/index.html`
+* `http://localhost:3000/style.css`
+* `http://localhost:3000/script.js`
+
+Files are served directly from the `public` folder without the folder name in the URL.
+
+### Method 2: With Folder Prefix
+
+```javascript
+app.use('/public', express.static('public'));
+```
+
+**Access files:**
+
+* `http://localhost:3000/public/index.html`
+* `http://localhost:3000/public/style.css`
+* `http://localhost:3000/public/script.js`
+
+The `/public` prefix is required in the URL.
+
+**Project Structure:**
+
+```
+project/
+├── public/
+│   ├── index.html
+│   ├── style.css
+│   └── images/
+│       └── logo.png
+└── server.js
+```
+
+---
+
+## Form Handling
+
+### A) URL-Encoded Form Data
+
+For standard HTML forms (`application/x-www-form-urlencoded`).
+
+```javascript
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse form data
+
+app.post('/form', (req, res) => {
+    console.log(req.body);
+    res.send('Form Received!');
+});
+```
+
+**HTML Form Example:**
+
+```html
+<form action="/form" method="POST">
+    <input type="text" name="username" placeholder="Username">
+    <input type="email" name="email" placeholder="Email">
+    <button type="submit">Submit</button>
+</form>
+```
+
+**What `extended: true` means:**
+
+* Allows parsing of nested objects in form data
+* Uses the `qs` library for parsing
+* Example: `user[name]=John&user[age]=25` becomes `{ user: { name: 'John', age: 25 } }`
+
+### B) Multipart Form Data (File Uploads)
+
+For forms with file uploads (`multipart/form-data`).
+
+**Install Multer:**
+
+```bash
+npm install multer
+```
+
+**Implementation:**
+
+```javascript
+import multer from 'multer';
+import path from 'path';
+
+// Configure storage
+const storage = multer.diskStorage({
+    destination: 'uploads', // Folder where files will be saved
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname); // Get file extension
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+});
+
+const upload = multer({ storage });
+
+// For single file upload
+app.use(upload.single('image')); // 'image' is the field name in the form
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.post('/form', (req, res) => {
+    console.log(req.body); // Form text fields
+    console.log(req.file); // Uploaded file info
+    res.send('Form Received!');
+});
+```
+
+**HTML Form for File Upload:**
+
+```html
+<form action="/form" method="POST" enctype="multipart/form-data">
+    <input type="text" name="username" placeholder="Username">
+    <input type="file" name="image">
+    <button type="submit">Submit</button>
+</form>
+```
+
+**File Object Structure:**
+
+```javascript
+{
+  fieldname: 'image',
+  originalname: 'photo.jpg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  destination: 'uploads',
+  filename: 'image-1234567890-987654321.jpg',
+  path: 'uploads/image-1234567890-987654321.jpg',
+  size: 152348
+}
+```
+
+**Multiple File Upload Options:**
+
+```javascript
+// Single file
+upload.single('image')
+
+// Multiple files with same field name
+upload.array('photos', 5) // Max 5 files
+
+// Multiple files with different field names
+upload.fields([
+    { name: 'avatar', maxCount: 1 },
+    { name: 'gallery', maxCount: 8 }
+])
+```
+
+---
+
+## MongoDB Setup & Connection
+
+### What is MongoDB?
+
+MongoDB is a NoSQL database that stores data in flexible, JSON-like documents. Unlike traditional databases with tables and rows, MongoDB uses:
+
+* **Database** → Collection of collections
+* **Collection** → Like a table (e.g., "users", "products")
+* **Document** → Like a row (individual record)
+* **Field** → Like a column (e.g., "name", "email")
+
+### Setting Up MongoDB Atlas (Cloud Database)
+
+1. **Create Account:** Go to [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+2. **Create Cluster:** Free tier is available
+3. **Get Connection String:** Click "Connect" → "Connect your application"
+4. **Whitelist IP:** Add your IP address or use `0.0.0.0/0` for all IPs (development only)
+
+### Install Mongoose
+
+Mongoose is an ODM (Object Data Modeling) library for MongoDB and Node.js.
+
+```bash
+npm install mongoose
+```
+
+### Connection Configuration
+
+**File: `config/db.js`**
+
+```javascript
+import mongoose from "mongoose";
+
+export const connectDB = async () => {
+    // MongoDB Atlas connection string
+    // Format: mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>
+    const uri = "mongodb+srv://priyanshsaxena7999:FnW$3H216@cluster1.yt59igm.mongodb.net/?appName=Cluster1";
+
+    try {
+        // Connect to MongoDB
+        await mongoose.connect(uri);
+        console.log("Connected to MongoDB");
+    } catch (err) {
+        console.error("Error connecting to MongoDB:", err);
+        process.exit(1); // Exit if connection fails
+    }
+};
+```
+
+**Connection String Breakdown:**
+
+* `mongodb+srv://` - Protocol (srv for DNS seedlist)
+* `username:password` - Your credentials
+* `@cluster1.yt59igm.mongodb.net` - Cluster hostname
+* `/database_name` - Optional: specific database name
+* `?appName=Cluster1` - Optional: connection parameters
+
+**⚠️ Security Note:** Never commit credentials to GitHub! Use environment variables:
+
+```javascript
+// Better approach with dotenv
+import dotenv from 'dotenv';
+dotenv.config();
+
+const uri = process.env.MONGODB_URI;
+```
+
+---
+
+## Mongoose Schemas & Models
+
+### Understanding Schemas
+
+A **Schema** defines the structure of documents in a collection (like a blueprint).
+
+**File: `models/Person.js`**
+
+```javascript
+import mongoose from "mongoose";
+
+// Define the schema for Person (table structure)
+const personSchema = new mongoose.Schema({
+    name: { 
+        type: String, 
+        required: true  // Field is mandatory
+    },
+    age: { 
+        type: Number, 
+        required: true 
+    },
+    email: { 
+        type: String, 
+        required: true, 
+        unique: true  // No duplicate emails
+    },
+    userOrder: { 
+        type: Object, 
+        default: {}  // Default value is empty object
+    }
+}, {
+    timestamps: true,  // Adds createdAt and updatedAt fields automatically
+    minimize: false    // Don't remove empty objects
+});
+
+// Create and export the Person model
+// Parameters: (model name, schema)
+export const Person = mongoose.model('Person', personSchema);
+```
+
+### Schema Options Explained
+
+**Field Options:**
+
+* `type` - Data type (String, Number, Date, Boolean, Array, Object, etc.)
+* `required` - Field must have a value
+* `unique` - No two documents can have the same value
+* `default` - Default value if not provided
+* `min/max` - For numbers (e.g., `min: 0, max: 100`)
+* `minLength/maxLength` - For strings
+* `enum` - Allowed values (e.g., `enum: ['male', 'female', 'other']`)
+* `validate` - Custom validation function
+
+**Schema Options:**
+
+* `timestamps: true` - Automatically adds `createdAt` and `updatedAt` fields
+* `minimize: false` - Keeps empty objects (by default Mongoose removes them)
+
+### What is a Model?
+
+A **Model** is a constructor compiled from a Schema. It represents a collection and provides methods to interact with the database.
+
+```javascript
+// Creating a model
+const Person = mongoose.model('Person', personSchema);
+
+// Collection name in MongoDB will be 'people' (lowercase, pluralized)
+```
+
+---
+
+## CRUD Operations
+
+### Complete Server Implementation
+
+**File: `index.js`**
+
+```javascript
+import express from 'express';
+import { connectDB } from './config/db.js';
+import { Person } from './models/Person.js';
+
+const app = express();
+const port = 3000;
+
+app.use(express.json()); // Middleware to parse JSON body
+
+// Connect to MongoDB
+await connectDB();
+
+// Basic Route
+app.get('/', (req, res) => {
+    res.send("Hello from Express");
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
+```
+
+### CREATE - Add New Person
+
+```javascript
+app.post('/person', async (req, res) => {
+    try {
+        console.log(req.body);
+        const { name, email, age } = req.body;
+      
+        // Create a new Person document (row in table)
+        const newPerson = new Person({
+            name,
+            age,
+            email
+        });
+      
+        // Save the document to the database
+        await newPerson.save();
+        console.log(newPerson);
+      
+        res.status(201).json({
+            message: "Person Added",
+            person: newPerson
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+```
+
+**Test with Postman or CURL:**
+
+```bash
+curl -X POST http://localhost:3000/person \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Doe","email":"john@example.com","age":25}'
+```
+
+**MongoDB Document Created:**
+
+```json
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "age": 25,
+  "userOrder": {},
+  "createdAt": "2025-01-15T10:30:00.000Z",
+  "updatedAt": "2025-01-15T10:30:00.000Z"
+}
+```
+
+### READ - Get All Persons
+
+```javascript
+app.get('/persons', async (req, res) => {
+    try {
+        // find() method to get all documents from collection
+        const persons = await Person.find();
+      
+        res.json({
+            count: persons.length,
+            persons
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+```
+
+**Mongoose Find Methods:**
+
+```javascript
+// Get all documents
+Person.find()
+
+// Find with conditions
+Person.find({ age: { $gte: 18 } }) // Age >= 18
+Person.find({ name: "John" })
+
+// Find one document
+Person.findOne({ email: "john@example.com" })
+
+// Find by ID
+Person.findById("507f1f77bcf86cd799439011")
+
+// Find with limit and sort
+Person.find().limit(10).sort({ age: -1 }) // Top 10, oldest first
+```
+
+### UPDATE - Modify Existing Person
+
+```javascript
+app.put('/person', async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        // METHOD 1: Find, modify, and save
+        // const personData = await Person.findById(id);
+        // personData.age = 20;
+        // await personData.save();
+
+        // METHOD 2: Find by name (returns first match)
+        // const personData = await Person.findOne({ name: "John" });
+
+        // METHOD 3: Find all matching documents
+        // const personData = await Person.find({ name: "John" });
+
+        // METHOD 4: findByIdAndUpdate (Recommended)
+        const personData = await Person.findByIdAndUpdate(
+            id,                    // Document ID
+            { age: 25 },          // Update object
+            { new: true }         // Return updated document
+        );
+
+        if (!personData) {
+            return res.status(404).json({ error: "Person not found" });
+        }
+
+        console.log(personData);
+        res.json({
+            message: "Person Updated",
+            person: personData
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+```
+
+**Update Methods Explained:**
+
+```javascript
+// findByIdAndUpdate
+Person.findByIdAndUpdate(id, updateObject, options)
+
+// Options:
+// - new: true → Return updated document (default: false, returns old)
+// - runValidators: true → Run schema validators on update
+// - upsert: true → Create if doesn't exist
+
+// Update multiple documents
+Person.updateMany({ age: { $lt: 18 } }, { status: "minor" })
+
+// Update one document
+Person.updateOne({ email: "john@example.com" }, { age: 26 })
+```
+
+**Update Operators:**
+
+```javascript
+// Set field value
+{ $set: { age: 30 } }
+
+// Increment value
+{ $inc: { age: 1 } }
+
+// Multiply value
+{ $mul: { price: 1.1 } }
+
+// Add to array
+{ $push: { hobbies: "reading" } }
+
+// Remove from array
+{ $pull: { hobbies: "gaming" } }
+```
+
+### DELETE - Remove Person
+
+```javascript
+app.delete('/person/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+      
+        // findByIdAndDelete method
+        const deletedPerson = await Person.findByIdAndDelete(id);
+      
+        if (!deletedPerson) {
+            return res.status(404).json({ error: "Person not found" });
+        }
+      
+        res.json({
+            message: "Person Deleted",
+            person: deletedPerson
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+```
+
+**Delete Methods:**
+
+```javascript
+// Delete by ID
+Person.findByIdAndDelete(id)
+
+// Delete one document
+Person.deleteOne({ email: "john@example.com" })
+
+// Delete multiple documents
+Person.deleteMany({ age: { $lt: 18 } })
+
+// Find and delete
+Person.findOneAndDelete({ name: "John" })
+```
+
+---
+
+## Complete Project Structure
+
+```
+project/
+├── config/
+│   └── db.js           # Database connection
+├── models/
+│   └── Person.js       # Mongoose schema & model
+├── public/             # Static files
+│   ├── index.html
+│   └── style.css
+├── uploads/            # File uploads (create automatically)
+├── index.js            # Main server file
+├── package.json
+└── .env                # Environment variables (add to .gitignore)
+```
+
+### Environment Variables Setup
+
+**Install dotenv:**
+
+```bash
+npm install dotenv
+```
+
+**Create `.env` file:**
+
+```
+PORT=3000
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+```
+
+**Update `config/db.js`:**
+
+```javascript
+import mongoose from "mongoose";
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+export const connectDB = async () => {
+    const uri = process.env.MONGODB_URI;
+  
+    try {
+        await mongoose.connect(uri);
+        console.log("Connected to MongoDB");
+    } catch (err) {
+        console.error("Error connecting to MongoDB:", err);
+        process.exit(1);
+    }
+};
+```
+
+---
+
+## MongoDB Query Operators Reference
+
+### Comparison Operators
+
+```javascript
+// Equal
+{ age: 25 }
+
+// Greater than / Less than
+{ age: { $gt: 18 } }     // age > 18
+{ age: { $gte: 18 } }    // age >= 18
+{ age: { $lt: 65 } }     // age < 65
+{ age: { $lte: 65 } }    // age <= 65
+
+// Not equal
+{ status: { $ne: "inactive" } }
+
+// In array
+{ age: { $in: [20, 25, 30] } }
+
+// Not in array
+{ age: { $nin: [20, 25, 30] } }
+```
+
+### Logical Operators
+
+```javascript
+// AND
+{ $and: [{ age: { $gte: 18 } }, { status: "active" }] }
+
+// OR
+{ $or: [{ age: { $lt: 18 } }, { age: { $gt: 65 } }] }
+
+// NOT
+{ age: { $not: { $gte: 18 } } }
+
+// NOR
+{ $nor: [{ status: "inactive" }, { age: { $lt: 18 } }] }
+```
+
+### Element Operators
+
+```javascript
+// Field exists
+{ email: { $exists: true } }
+
+// Type check
+{ age: { $type: "number" } }
+```
+
+---
+
+## Testing Your API
+
+### Using Postman
+
+1. **CREATE:** POST to `http://localhost:3000/person`
+   * Body: JSON → `{"name":"John","email":"john@test.com","age":25}`
+2. **READ:** GET to `http://localhost:3000/persons`
+3. **UPDATE:** PUT to `http://localhost:3000/person`
+   * Body: JSON → `{"id":"507f1f77bcf86cd799439011"}`
+4. **DELETE:** DELETE to `http://localhost:3000/person/507f1f77bcf86cd799439011`
+
+### Using VS Code REST Client
+
+Create `test.rest` file:
+
+```
+### Create Person
+POST http://localhost:3000/person
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "age": 25
+}
+
+### Get All Persons
+GET http://localhost:3000/persons
+
+### Update Person
+PUT http://localhost:3000/person
+Content-Type: application/json
+
+{
+    "id": "507f1f77bcf86cd799439011"
+}
+
+### Delete Person
+DELETE http://localhost:3000/person/507f1f77bcf86cd799439011
+```
+
+---
+
+## Key Takeaways
+
+✅ **Static Files:** Use `express.static()` to serve HTML, CSS, images
+
+✅ **Form Handling:** Use `express.urlencoded()` for forms, `multer` for files
+
+✅ **MongoDB:** NoSQL database with collections and documents
+
+✅ **Mongoose:** ODM library that simplifies MongoDB operations
+
+✅ **Schemas:** Define document structure with validation
+
+✅ **Models:** Provide methods to interact with database
+
+✅ **CRUD:** Create (POST), Read (GET), Update (PUT), Delete (DELETE)
+
+✅ **Security:** Never expose database credentials in code
+
+---
+
+## Next Steps
+
+* Implement authentication (JWT tokens)
+* Add data validation (Joi, express-validator)
+* Create relationships between models (references, population)
+* Add pagination for large datasets
+* Implement search and filtering
+* Error handling middleware
+* API documentation with Swagger
+
+---
+
+**Happy Coding! 🚀**
