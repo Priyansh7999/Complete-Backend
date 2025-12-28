@@ -568,52 +568,41 @@ npm install mongoose
 
 ### Connection Configuration
 
-**File: `config/db.js`**
+**Create `.env` file:**
+
+```
+PORT=3000
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+```
+
+**File: `config/db.js`:**
 
 ```javascript
 import mongoose from "mongoose";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const connectDB = async () => {
-    // MongoDB Atlas connection string
-    // Format: mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>
-    const uri = "mongodb+srv://priyanshsaxena7999:FnW$3H216@cluster1.yt59igm.mongodb.net/?appName=Cluster1";
-
+    const uri = process.env.MONGODB_URI;
+  
     try {
-        // Connect to MongoDB
         await mongoose.connect(uri);
         console.log("Connected to MongoDB");
     } catch (err) {
         console.error("Error connecting to MongoDB:", err);
-        process.exit(1); // Exit if connection fails
+        process.exit(1);
     }
 };
 ```
 
-**Connection String Breakdown:**
-
-* `mongodb+srv://` - Protocol (srv for DNS seedlist)
-* `username:password` - Your credentials
-* `@cluster1.yt59igm.mongodb.net` - Cluster hostname
-* `/database_name` - Optional: specific database name
-* `?appName=Cluster1` - Optional: connection parameters
-
-**⚠️ Security Note:** Never commit credentials to GitHub! Use environment variables:
-
-```javascript
-// Better approach with dotenv
-import dotenv from 'dotenv';
-dotenv.config();
-
-const uri = process.env.MONGODB_URI;
-```
-
----
-
 ## Mongoose Schemas & Models
 
-### Understanding Schemas
+### Understanding Schemas & Models
 
 A **Schema** defines the structure of documents in a collection (like a blueprint).
+
+A **Model** is a constructor compiled from a Schema. It represents a collection and provides methods to interact with the database.
 
 **File: `models/Person.js`**
 
@@ -666,17 +655,6 @@ export const Person = mongoose.model('Person', personSchema);
 
 * `timestamps: true` - Automatically adds `createdAt` and `updatedAt` fields
 * `minimize: false` - Keeps empty objects (by default Mongoose removes them)
-
-### What is a Model?
-
-A **Model** is a constructor compiled from a Schema. It represents a collection and provides methods to interact with the database.
-
-```javascript
-// Creating a model
-const Person = mongoose.model('Person', personSchema);
-
-// Collection name in MongoDB will be 'people' (lowercase, pluralized)
-```
 
 ---
 
@@ -737,28 +715,6 @@ app.post('/person', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-```
-
-**Test with Postman or CURL:**
-
-```bash
-curl -X POST http://localhost:3000/person \
-  -H "Content-Type: application/json" \
-  -d '{"name":"John Doe","email":"john@example.com","age":25}'
-```
-
-**MongoDB Document Created:**
-
-```json
-{
-  "_id": "507f1f77bcf86cd799439011",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "age": 25,
-  "userOrder": {},
-  "createdAt": "2025-01-15T10:30:00.000Z",
-  "updatedAt": "2025-01-15T10:30:00.000Z"
-}
 ```
 
 ### READ - Get All Persons
@@ -839,43 +795,6 @@ app.put('/person', async (req, res) => {
 });
 ```
 
-**Update Methods Explained:**
-
-```javascript
-// findByIdAndUpdate
-Person.findByIdAndUpdate(id, updateObject, options)
-
-// Options:
-// - new: true → Return updated document (default: false, returns old)
-// - runValidators: true → Run schema validators on update
-// - upsert: true → Create if doesn't exist
-
-// Update multiple documents
-Person.updateMany({ age: { $lt: 18 } }, { status: "minor" })
-
-// Update one document
-Person.updateOne({ email: "john@example.com" }, { age: 26 })
-```
-
-**Update Operators:**
-
-```javascript
-// Set field value
-{ $set: { age: 30 } }
-
-// Increment value
-{ $inc: { age: 1 } }
-
-// Multiply value
-{ $mul: { price: 1.1 } }
-
-// Add to array
-{ $push: { hobbies: "reading" } }
-
-// Remove from array
-{ $pull: { hobbies: "gaming" } }
-```
-
 ### DELETE - Remove Person
 
 ```javascript
@@ -935,94 +854,6 @@ project/
 └── .env                # Environment variables (add to .gitignore)
 ```
 
-### Environment Variables Setup
-
-**Install dotenv:**
-
-```bash
-npm install dotenv
-```
-
-**Create `.env` file:**
-
-```
-PORT=3000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
-```
-
-**Update `config/db.js`:**
-
-```javascript
-import mongoose from "mongoose";
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-export const connectDB = async () => {
-    const uri = process.env.MONGODB_URI;
-  
-    try {
-        await mongoose.connect(uri);
-        console.log("Connected to MongoDB");
-    } catch (err) {
-        console.error("Error connecting to MongoDB:", err);
-        process.exit(1);
-    }
-};
-```
-
----
-
-## MongoDB Query Operators Reference
-
-### Comparison Operators
-
-```javascript
-// Equal
-{ age: 25 }
-
-// Greater than / Less than
-{ age: { $gt: 18 } }     // age > 18
-{ age: { $gte: 18 } }    // age >= 18
-{ age: { $lt: 65 } }     // age < 65
-{ age: { $lte: 65 } }    // age <= 65
-
-// Not equal
-{ status: { $ne: "inactive" } }
-
-// In array
-{ age: { $in: [20, 25, 30] } }
-
-// Not in array
-{ age: { $nin: [20, 25, 30] } }
-```
-
-### Logical Operators
-
-```javascript
-// AND
-{ $and: [{ age: { $gte: 18 } }, { status: "active" }] }
-
-// OR
-{ $or: [{ age: { $lt: 18 } }, { age: { $gt: 65 } }] }
-
-// NOT
-{ age: { $not: { $gte: 18 } } }
-
-// NOR
-{ $nor: [{ status: "inactive" }, { age: { $lt: 18 } }] }
-```
-
-### Element Operators
-
-```javascript
-// Field exists
-{ email: { $exists: true } }
-
-// Type check
-{ age: { $type: "number" } }
-```
-
 ---
 
 ## Testing Your API
@@ -1035,69 +866,3 @@ export const connectDB = async () => {
 3. **UPDATE:** PUT to `http://localhost:3000/person`
    * Body: JSON → `{"id":"507f1f77bcf86cd799439011"}`
 4. **DELETE:** DELETE to `http://localhost:3000/person/507f1f77bcf86cd799439011`
-
-### Using VS Code REST Client
-
-Create `test.rest` file:
-
-```
-### Create Person
-POST http://localhost:3000/person
-Content-Type: application/json
-
-{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "age": 25
-}
-
-### Get All Persons
-GET http://localhost:3000/persons
-
-### Update Person
-PUT http://localhost:3000/person
-Content-Type: application/json
-
-{
-    "id": "507f1f77bcf86cd799439011"
-}
-
-### Delete Person
-DELETE http://localhost:3000/person/507f1f77bcf86cd799439011
-```
-
----
-
-## Key Takeaways
-
-✅ **Static Files:** Use `express.static()` to serve HTML, CSS, images
-
-✅ **Form Handling:** Use `express.urlencoded()` for forms, `multer` for files
-
-✅ **MongoDB:** NoSQL database with collections and documents
-
-✅ **Mongoose:** ODM library that simplifies MongoDB operations
-
-✅ **Schemas:** Define document structure with validation
-
-✅ **Models:** Provide methods to interact with database
-
-✅ **CRUD:** Create (POST), Read (GET), Update (PUT), Delete (DELETE)
-
-✅ **Security:** Never expose database credentials in code
-
----
-
-## Next Steps
-
-* Implement authentication (JWT tokens)
-* Add data validation (Joi, express-validator)
-* Create relationships between models (references, population)
-* Add pagination for large datasets
-* Implement search and filtering
-* Error handling middleware
-* API documentation with Swagger
-
----
-
-**Happy Coding! 🚀**
