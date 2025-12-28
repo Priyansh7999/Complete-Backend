@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 export const connectDB = async () => {
     // URI for MongoDB connection
-    const MONGO_DB_URI = "mongodb+srv://priyanshsaxena7999:FnW$3H216@cluster1.yt59igm.mongodb.net/express"
-    const uri = "mongodb+srv://priyanshsaxena7999:FnW$3H216@cluster1.yt59igm.mongodb.net/?appName=Cluster1";
+    const uri = process.env.MONGO_DB_URI;
 
     // Connect to MongoDB
     await mongoose.connect(uri).then(() => {
@@ -10,5 +11,4 @@ export const connectDB = async () => {
     }).catch((err) => {
         console.error("Error connecting to MongoDB:", err);
     });
-
 }
