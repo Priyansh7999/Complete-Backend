@@ -20,7 +20,10 @@
   },
   "homepage": "https://github.com/Priyansh7999/Complete_Backend#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

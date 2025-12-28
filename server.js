@@ -1,5 +1,5 @@
 import express from 'express';
-
+import path from 'path';
 const app = express()
 const port = 3000;
 
@@ -97,8 +97,11 @@ app.use((err,req,res,next)=>{
     //     })
     // }) 
 
-
-
+// Serving Stataic files 
+    // for serving a with file name only
+    // app.use(express.static('public')); 
+    // for serving files with folder name as prefix 
+    // app.use('/public',express.static('public'));
 
 
 
