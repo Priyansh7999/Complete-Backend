@@ -1,5 +1,4 @@
 import express from 'express';
-import path from 'path';
 const app = express()
 const port = 3000;
 
@@ -103,9 +102,33 @@ app.use((err,req,res,next)=>{
     // for serving files with folder name as prefix 
     // app.use('/public',express.static('public'));
 
-
-
-
+// Handling Form Data
+    // a) raw form urlencoded data
+    // app.use(express.json());
+    // app.use(express.urlencoded({extended:true})); // to parse form data
+    // app.post('/form',(req,res)=>{
+    //     console.log(req.body);
+    //     res.send('Form Received!');
+    // })
+    // b) multipart/form-data (file uploads)
+    // import multer from 'multer';
+    // const storage = multer.diskStorage({
+    //     destination:'uploads',
+    //     filename:(req,file,cb)=>{
+    //         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    //         const ext = path.extname(file.originalname);
+    //         cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    //     }
+    // });
+    // const upload = multer({storage});
+    // app.use(upload.single('image')); // for parsing multipart/form-data
+    // app.use(express.json());
+    // app.use(express.urlencoded({extended:true}));
+    // app.post('/form',(req,res)=>{
+    //     console.log(req.body);
+    //     console.log(req.file); // uploaded file info
+    //     res.send('Form Received!');
+    // })
 
 
 
