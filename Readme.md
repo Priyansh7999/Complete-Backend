@@ -369,12 +369,12 @@ app.listen(port, () => {
 
 ## Table of Contents
 
-1. [Serving Static Files](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#serving-static-files)
-2. [Form Handling](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#form-handling)
-3. [MongoDB Setup &amp; Connection](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#mongodb-setup--connection)
-4. [Mongoose Schemas &amp; Models](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#mongoose-schemas--models)
-5. [CRUD Operations](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#crud-operations)
-6. [Complete Project Structure](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#complete-project-structure)
+1. [Serving Static Files](h#serving-static-files)
+2. [Form Handling](#form-handling)
+3. [MongoDB Setup &amp; Connection](#mongodb-setup--connection)
+4. [Mongoose Schemas &amp; Models](#mongoose-schemas--models)
+5. [CRUD Operations](#crud-operations)
+6. [Complete Project Structure](#complete-project-structure)
 
 ---
 
@@ -873,11 +873,11 @@ project/
 
 ## Table of Contents
 
-1. [Cookies in Express](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#cookies-in-express)
-2. [Sessions in Express](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#sessions-in-express)
-3. [Authentication Methods](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#authentication-methods)
-4. [Building RESTful APIs](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#building-restful-apis)
-5. [Project Scaffolding &amp; MVC Pattern](https://claude.ai/chat/2405334a-278c-4a1a-932e-4d69314a1995#project-scaffolding--mvc-pattern)
+1. [Cookies in Express](#cookies-in-express)
+2. [Sessions in Express](#sessions-in-express)
+3. [Authentication Methods](#authentication-methods)
+4. [Building RESTful APIs](#building-restful-apis)
+5. [Project Scaffolding &amp; MVC Pattern](#project-scaffolding--mvc-pattern)
 
 ---
 
