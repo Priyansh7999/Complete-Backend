@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "nodemon Cookies.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Priyansh7999/Complete_Backend#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.2.1",
