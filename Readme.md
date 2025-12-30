@@ -694,18 +694,18 @@ app.post('/person', async (req, res) => {
     try {
         console.log(req.body);
         const { name, email, age } = req.body;
-    
+  
         // Create a new Person document (row in table)
         const newPerson = new Person({
             name,
             age,
             email
         });
-    
+  
         // Save the document to the database
         await newPerson.save();
         console.log(newPerson);
-    
+  
         res.status(201).json({
             message: "Person Added",
             person: newPerson
@@ -723,7 +723,7 @@ app.get('/persons', async (req, res) => {
     try {
         // find() method to get all documents from collection
         const persons = await Person.find();
-    
+  
         res.json({
             count: persons.length,
             persons
@@ -800,14 +800,14 @@ app.put('/person', async (req, res) => {
 app.delete('/person/:id', async (req, res) => {
     try {
         const { id } = req.params;
-    
+  
         // findByIdAndDelete method
         const deletedPerson = await Person.findByIdAndDelete(id);
-    
+  
         if (!deletedPerson) {
             return res.status(404).json({ error: "Person not found" });
         }
-    
+  
         res.json({
             message: "Person Deleted",
             person: deletedPerson
@@ -865,7 +865,6 @@ project/
 3. **UPDATE:** PUT to `http://localhost:3000/person`
    * Body: JSON → `{"id":"507f1f77bcf86cd799439011"}`
 4. **DELETE:** DELETE to `http://localhost:3000/person/507f1f77bcf86cd799439011`
-
 
 # Day 3: Cookies, Sessions, Authentication, REST APIs & Project Scaffolding
 
@@ -1145,44 +1144,6 @@ app.use(session({
 }));
 ```
 
-### Session Storage Options
-
-**MemoryStore (Default - Development Only):**
-
-* Fast but not scalable
-* Data lost when server restarts
-* **Don't use in production!**
-
-**Production Options:**
-
-```bash
-# Redis (Recommended)
-npm install connect-redis redis
-
-# MongoDB
-npm install connect-mongo
-
-# PostgreSQL
-npm install connect-pg-simple
-```
-
-**Redis Example:**
-
-```javascript
-import RedisStore from 'connect-redis';
-import { createClient } from 'redis';
-
-const redisClient = createClient();
-redisClient.connect();
-
-app.use(session({
-    store: new RedisStore({ client: redisClient }),
-    secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: false
-}));
-```
-
 ### Common Session Operations
 
 ```javascript
@@ -1432,7 +1393,7 @@ app.post('/register', async (req, res) => {
 
         // Store user with hashed password
         users.push({ username, password: hashedPassword });
-      
+    
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
         res.status(500).json({ message: "Error registering user", error: error.message });
@@ -1446,7 +1407,7 @@ app.post('/login', async (req, res) => {
 
         // Find user
         const user = users.find(u => u.username === username);
-      
+    
         // Verify user exists and password matches
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ message: "Invalid credentials" });
@@ -1505,7 +1466,7 @@ app.listen(port, () => {
 export const authenticateToken = (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
-      
+    
         if (!token) {
             return res.status(401).json({ message: "Access denied" });
         }
@@ -2050,14 +2011,14 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-      
+    
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Product not found'
             });
         }
-      
+    
         res.status(200).json({
             success: true,
             data: product
@@ -2095,14 +2056,14 @@ export const updateProduct = async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         );
-      
+    
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Product not found'
             });
         }
-      
+    
         res.status(200).json({
             success: true,
             message: 'Product updated successfully',
@@ -2120,14 +2081,14 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
-      
+    
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Product not found'
             });
         }
-      
+    
         res.status(200).json({
             success: true,
             message: 'Product deleted successfully'
@@ -2264,14 +2225,14 @@ import jwt from 'jsonwebtoken';
 export const authenticate = (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
-      
+    
         if (!token) {
             return res.status(401).json({
                 success: false,
                 message: 'Authentication required'
             });
         }
-      
+    
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
