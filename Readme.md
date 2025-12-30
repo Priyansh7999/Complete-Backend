@@ -1393,7 +1393,7 @@ app.post('/register', async (req, res) => {
 
         // Store user with hashed password
         users.push({ username, password: hashedPassword });
-    
+  
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
         res.status(500).json({ message: "Error registering user", error: error.message });
@@ -1407,7 +1407,7 @@ app.post('/login', async (req, res) => {
 
         // Find user
         const user = users.find(u => u.username === username);
-    
+  
         // Verify user exists and password matches
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ message: "Invalid credentials" });
@@ -1466,7 +1466,7 @@ app.listen(port, () => {
 export const authenticateToken = (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
-    
+  
         if (!token) {
             return res.status(401).json({ message: "Access denied" });
         }
@@ -2011,14 +2011,14 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-    
+  
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Product not found'
             });
         }
-    
+  
         res.status(200).json({
             success: true,
             data: product
@@ -2056,14 +2056,14 @@ export const updateProduct = async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         );
-    
+  
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Product not found'
             });
         }
-    
+  
         res.status(200).json({
             success: true,
             message: 'Product updated successfully',
@@ -2081,14 +2081,14 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
-    
+  
         if (!product) {
             return res.status(404).json({
                 success: false,
                 message: 'Product not found'
             });
         }
-    
+  
         res.status(200).json({
             success: true,
             message: 'Product deleted successfully'
@@ -2162,154 +2162,6 @@ app.listen(port, () => {
 });
 ```
 
-### Express Generator (Automated Scaffolding)
-
-**Install Express Generator:**
-
-```bash
-npm install -g express-generator
-```
-
-**Generate Project:**
-
-```bash
-# Basic project
-express myapp
-
-# With EJS template engine
-express --view=ejs myapp
-
-# With Pug template engine
-express --view=pug myapp
-
-# Without view engine (API only)
-express --no-view myapp
-```
-
-**Generated Structure:**
-
-```
-myapp/
-├── bin/
-│   └── www              # Server startup script
-├── public/
-│   ├── images/
-│   ├── javascripts/
-│   └── stylesheets/
-│       └── style.css
-├── routes/
-│   ├── index.js
-│   └── users.js
-├── views/
-│   ├── error.ejs
-│   └── index.ejs
-├── app.js               # Main application file
-└── package.json
-```
-
-**Install Dependencies & Run:**
-
-```bash
-cd myapp
-npm install
-npm start
-```
-
-### Middleware Structure
-
-**Create `middleware/auth.js`:**
-
-```javascript
-import jwt from 'jsonwebtoken';
-
-export const authenticate = (req, res, next) => {
-    try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: 'Authentication required'
-            });
-        }
-    
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        res.status(401).json({
-            success: false,
-            message: 'Invalid token'
-        });
-    }
-};
-
-export const authorize = (...roles) => {
-    return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({
-                success: false,
-                message: 'Access denied'
-            });
-        }
-        next();
-    };
-};
-```
-
-**Usage:**
-
-```javascript
-import { authenticate, authorize } from './middleware/auth.js';
-
-// Protect route
-router.get('/profile', authenticate, getProfile);
-
-// Admin only route
-router.delete('/users/:id', authenticate, authorize('admin'), deleteUser);
-```
-
-### Environment Variables
-
-**Install dotenv:**
-
-```bash
-npm install dotenv
-```
-
-**Create `.env` file:**
-
-```
-PORT=3000
-NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/mydb
-JWT_SECRET=your-secret-key-change-in-production
-JWT_EXPIRE=1h
-```
-
-**Load in `server.js`:**
-
-```javascript
-import dotenv from 'dotenv';
-dotenv.config();
-
-const port = process.env.PORT || 3000;
-const jwtSecret = process.env.JWT_SECRET;
-```
-
-**Add to `.gitignore`:**
-
-```
-node_modules/
-.env
-.env.local
-.env.production
-```
-
-### Complete MVC Example
-
-**Full Project Setup:**
-
 **`config/db.js`:**
 
 ```javascript
@@ -2381,69 +2233,3 @@ app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
 ```
-
----
-
-## Key Takeaways
-
-### Cookies
-
-✅ Small data stored in browser (max 4KB)
-
-✅ Sent with every request
-
-✅ Use `httpOnly`, `secure`, `sameSite` for security
-
-✅ Good for: preferences, tracking, session IDs
-
-### Sessions
-
-✅ Data stored on server, ID sent to client
-
-✅ More secure than cookies
-
-✅ Use Redis/MongoDB in production (not MemoryStore)
-
-✅ Good for: user authentication, shopping carts
-
-### Authentication
-
-✅  **Session-based** : Server stores user data, good for traditional apps
-
-✅  **JWT** : Stateless tokens, good for APIs and mobile apps
-
-✅ Always hash passwords with bcrypt
-
-✅ Use HTTPS in production
-
-### REST APIs
-
-✅ Use proper HTTP methods (GET, POST, PUT, DELETE)
-
-✅ Return consistent JSON responses
-
-✅ Use correct status codes
-
-✅ Implement pagination, filtering, sorting
-
-✅ Follow naming conventions (plural nouns)
-
-### MVC Pattern
-
-✅  **Model** : Database logic
-
-✅  **View** : Presentation (templates/JSON)
-
-✅  **Controller** : Request handling
-
-✅ Separates concerns, makes code maintainable
-
-### Project Structure
-
-✅ Organize code into folders (models, controllers, routes)
-
-✅ Use environment variables for secrets
-
-✅ Implement middleware for reusable logic
-
-✅ Use Express Generator for quick setup
